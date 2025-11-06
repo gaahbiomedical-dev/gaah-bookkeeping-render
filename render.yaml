@@ -1,15 +1,18 @@
 services:
   - type: web
-    name: gaah-bookkeeping
+    name: gaah-bookkeeping-backend
     env: python
-    branch: main
+    region: singapore
+    plan: free
     buildCommand: |
-      cd frontend && npm install && npm run build && cd ..
+      pip install --upgrade pip
       pip install -r backend/requirements.txt
     startCommand: |
-      cd backend && ./start.sh
+      cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: PYTHONUNBUFFERED
-        value: "1"
-databases:
-  - name: gaah-db
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
