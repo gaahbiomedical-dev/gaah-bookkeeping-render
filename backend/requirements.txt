@@ -1,18 +1,6 @@
-services:
-  - type: web
-    name: gaah-bookkeeping-backend
-    env: python
-    region: singapore
-    plan: free
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r backend/requirements.txt
-    startCommand: |
-      cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: SECRET_KEY
-        generateValue: true
-      - key: ENVIRONMENT
-        value: production
+fastapi==0.111.1
+uvicorn==0.23.2
+sqlalchemy==2.0.24
+psycopg2-binary==2.9.7
+pydantic==1.10.12
+python-dotenv==1.0.1
