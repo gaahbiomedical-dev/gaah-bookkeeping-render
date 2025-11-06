@@ -3,31 +3,31 @@ name: Deploy Frontend to GitHub Pages
 on:
   push:
     branches:
-      - main  # or your default branch
+      - main  # Trigger action when pushing to the main branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repo
       uses: actions/checkout@v3
 
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'  # or your preferred node version
+        node-version: '18'  # Ensure your Node.js version is compatible
 
     - name: Install dependencies
       working-directory: ./frontend
-      run: npm install
+      run: npm install  # Install dependencies in the frontend directory
 
     - name: Build frontend
       working-directory: ./frontend
-      run: npm run build
+      run: npm run build  # Run the build script to create production-ready files
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/dist
+        publish_dir: ./frontend/di_
