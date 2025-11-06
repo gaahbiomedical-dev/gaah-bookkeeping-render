@@ -75,3 +75,7 @@ def seed_data():
         crud.create_book_if_not_exists(db, 'Injection Book')
         existing = db.query(models.Transaction).count()
         if existing == 0:
+            tx = schemas.TransactionCreate(date=date.today(), item='Paracetamol Injection', quantity=5, rate=20, department='Ward 1', book_name='Injection Book')
+            crud.create_transaction(db, tx, entered_by='admin')
+    finally:
+        db.close()
