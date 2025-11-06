@@ -8,21 +8,13 @@ from datetime import timedelta, date
 from jose import jwt, JWTError
 import os
 
-# Create all tables
 models.Base.metadata.create_all(bind=engine)
-
-# Initialize FastAPI app
 app = FastAPI()
-
-# OAuth2 token URL
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
-# Path to the frontend dist directory
-frontend_dist_dir = os.path.join(os.path.dirname(__file__), 'frontend', 'dist')
-
-# Serve static frontend files if built (check for 'frontend/dist' directory)
-if os.path.isdir(frontend_dist_dir):
-    app.mount('/', StaticFiles(directory=frontend_dist_dir, html=True), name='static')
+# Serve static frontend if built
+if os.path.isdir(os.path.join(os.path.dirname(__file__), 'static')):
+    app.mount('/', StaticFiles(directory=os.path.join(os.path.dirname(__file__), 'static'), html=True), name='static')
 
 def get_db():
     db = SessionLocal()
@@ -41,4 +33,45 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 @app.post('/users', response_model=dict)
-d
+def create_user(u: schemas.UserCreate, db: Session = Depends(get_db)):
+    user = crud.create_user(db, u.username, u.password, u.role)
+    return {'username': user.username, 'role': user.role}
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
+    try:
+        payload = jwt.decode(token, auth.SECRET_KEY, algorithms=['HS256'])
+        username: str = payload.get('sub')
+        role: str = payload.get('role', 'user')
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_user_by_username(db, username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+@app.get('/books')
+def list_books(db: Session = Depends(get_db)):
+    return db.query(models.Book).all()
+
+@app.post('/transactions', response_model=schemas.TransactionOut)
+def add_transaction(tx: schemas.TransactionCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    return crud.create_transaction(db, tx, entered_by=current_user.username)
+
+@app.get('/books/{book_name}/daily-summary')
+def book_daily_summary(book_name: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    rows = crud.daily_summary(db, book_name)
+    return [dict(date=r.date.isoformat(), item=r.item, department=r.department, total_qty=r.total_qty, total_value=r.total_value) for r in rows]
+
+@app.on_event('startup')
+def seed_data():
+    db = SessionLocal()
+    try:
+        if not crud.get_user_by_username(db, 'admin'):
+            crud.create_user(db, 'admin', 'Admin', 'admin')  # Password updated here
+            print('Admin user created: admin / Admin')
+        crud.create_book_if_not_exists(db, 'Injection Book')
+        existing = db.query(models.Transaction).count()
+        if existing == 0:
