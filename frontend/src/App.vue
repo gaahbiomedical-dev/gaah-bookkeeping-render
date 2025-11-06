@@ -4,5 +4,9 @@
     <router-view />
   </div>
 </template>
-<script>export default {}</script>
-<style>body{font-family:Arial;padding:20px}</style>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
