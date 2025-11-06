@@ -59,4 +59,8 @@ def daily_summary(db: Session, book_name: str):
         .group_by(models.Transaction.date, models.Transaction.item, models.Transaction.department)
         .order_by(models.Transaction.date.desc())
     )
+<<<<<<< HEAD
     return q.all()
+=======
+    return q.all()
+>>>>>>> 1c071df926c702b72a64ef539685c19e319a01de

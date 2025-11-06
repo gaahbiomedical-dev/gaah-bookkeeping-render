@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
+<<<<<<< HEAD
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
@@ -18,4 +19,9 @@ export default defineConfig({
       }
     }
   }
+=======
+export default defineConfig({
+  base: '/gaah-bookkeeping-render/', 
+  plugins: [vue()]
+>>>>>>> 1c071df926c702b72a64ef539685c19e319a01de
 })
