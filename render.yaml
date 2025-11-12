@@ -1,5 +1,4 @@
 services:
-  # Backend service
   - type: web
     name: gaah-bookkeeping-backend
     env: python
@@ -17,15 +16,3 @@ services:
         generateValue: true
       - key: ENVIRONMENT
         value: production
-
-  # Frontend static site (optional if serving via backend)
-  - type: static
-    name: gaah-bookkeeping-frontend
-    env: node
-    region: singapore
-    plan: free
-    buildCommand: npm install && npm run build
-    publishDirectory: frontend/dist
-    envVars:
-      - key: VITE_API_BASE
-        value: https://gaah-bookkeeping-backend.onrender.com
